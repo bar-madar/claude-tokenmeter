@@ -1,0 +1,11 @@
+{
+  "name": "tokenmeter",
+  "version": "0.1.0",
+  "description": "Live token usage inside Claude Code: this session, today, plan limits, context fill and all-time totals, read from your local logs.",
+  "author": { "name": "Bar Madar", "url": "https://github.com/bar-madar" },
+  "homepage": "https://github.com/bar-madar/claude-tokenmeter",
+  "repository": "https://github.com/bar-madar/claude-tokenmeter",
+  "license": "MIT",
+  "keywords": ["tokens", "usage", "rate-limits", "context-window", "dashboard"],
+  "types": "./types/index.d.ts"
+}

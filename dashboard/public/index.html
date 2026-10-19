@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tokenmeter</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="logo">TOKEN<span>METER</span></div>
+    <div class="topbar-right">
+      <span id="updated" class="muted"></span>
+      <button id="refresh" class="icon-btn" title="Refresh (R)" aria-label="Refresh">&#x21bb;</button>
+    </div>
+  </header>
+
+  <main id="app">
+    <section class="title-row">
+      <h1>Claude Code</h1>
+      <span id="subtitle" class="muted"></span>
+    </section>
+
+    <div id="error" class="error" hidden></div>
+
+    <section id="last-session" class="card last-session"></section>
+
+    <section class="hero-grid">
+      <div class="card accent">
+        <div class="label">Today</div>
+        <div class="big orange" id="today-all">–</div>
+        <div class="sub" id="today-sub"></div>
+      </div>
+      <div class="card accent">
+        <div class="label">~30-day projection</div>
+        <div class="big orange" id="proj-all">–</div>
+        <div class="sub" id="proj-sub"></div>
+      </div>
+      <div class="card accent">
+        <div class="label">Cache hit rate</div>
+        <div class="big orange" id="cache-rate">–</div>
+        <div class="sub" id="cache-sub"></div>
+      </div>
+      <div class="card accent">
+        <div class="label">All time</div>
+        <div class="big orange" id="all-time">–</div>
+        <div class="sub" id="all-time-sub"></div>
+      </div>
+    </section>
+
+    <h2 class="section-title">Plan limits &amp; context</h2>
+    <section id="live" class="live-grid"></section>
+
+    <h2 class="section-title">Usage summary</h2>
+    <section id="summary" class="stat-grid"></section>
+
+    <h2 class="section-title">Daily activity <span class="muted">(14 days)</span></h2>
+    <section class="card chart-card">
+      <div class="chart-toolbar">
+        <div class="seg" role="group" aria-label="Daily chart tokens">
+          <button data-mode="all" class="on">All tokens</button>
+          <button data-mode="nocache">Without cache reads</button>
+        </div>
+        <div id="daily-legend" class="legend"></div>
+      </div>
+      <div id="daily-chart" class="chart"></div>
+      <details class="table-toggle">
+        <summary>Show as table</summary>
+        <div id="daily-table"></div>
+      </details>
+    </section>
+
+    <div class="two-col">
+      <div>
+        <h2 class="section-title">Activity heatmap <span class="muted">(90 days)</span></h2>
+        <section class="card chart-card">
+          <div id="heatmap" class="chart"></div>
+          <div id="heat-legend" class="legend heat-legend"></div>
+        </section>
+      </div>
+      <div>
+        <h2 class="section-title">Peak hours <span class="muted">(last 30 days)</span></h2>
+        <section class="card chart-card">
+          <div id="hours-chart" class="chart"></div>
+        </section>
+      </div>
+    </div>
+
+    <h2 class="section-title">Projects</h2>
+    <section class="card table-card"><div id="projects"></div></section>
+
+    <h2 class="section-title">Sessions</h2>
+    <section class="card table-card">
+      <div id="sessions"></div>
+      <button id="more-sessions" class="text-btn" hidden>Show all sessions</button>
+    </section>
+
+    <h2 class="section-title">Models</h2>
+    <section class="card table-card"><div id="models"></div></section>
+
+    <h2 class="section-title">Tools used</h2>
+    <section class="card"><div id="tools"></div></section>
+
+    <p class="footnote muted">
+      Reads the Claude Code session logs on this PC (Code tab in the desktop app, CLI and VS Code).
+      Chat-tab conversations aren't logged locally, so they aren't counted.
+      “All tokens” = input + output + cache read + cache write.
+    </p>
+  </main>
+
+  <footer class="bottombar">
+    <canvas id="buddy" width="56" height="56" title="Click me"></canvas>
+    <span id="footer-total" class="orange"></span>
+    <span id="footer-updated" class="muted"></span>
+  </footer>
+
+  <div id="tooltip" class="tooltip" hidden></div>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+{
+  "name": "claude-tokenmeter",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Token usage pane and local dashboard for Claude Code, read from your own session logs.",
+  "keywords": ["claude-code", "claude", "tokens", "usage", "dashboard", "plugin"],
+  "homepage": "https://github.com/bar-madar/claude-tokenmeter#readme",
+  "bugs": "https://github.com/bar-madar/claude-tokenmeter/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bar-madar/claude-tokenmeter.git"
+  },
+  "license": "MIT",
+  "author": "Bar Madar (https://github.com/bar-madar)",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node dashboard/server.js --open",
+    "dashboard": "node dashboard/server.js",
+    "demo": "node scripts/demo.js --open",
+    "scan": "node scanner.js",
+    "test": "node --test tests/scanner.test.cjs",
+    "test:plugin": "claude plugin validate . && claude plugin test ."
+  }
+}

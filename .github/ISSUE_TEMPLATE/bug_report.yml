@@ -1,0 +1,58 @@
+name: Bug report
+description: Something shows the wrong number, doesn't load, or breaks.
+labels: [bug]
+body:
+  - type: dropdown
+    id: part
+    attributes:
+      label: Which part?
+      options:
+        - Tokens pane (inside Claude Code)
+        - Web dashboard
+        - Both
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you saw, and what you expected instead. Screenshots help.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Start a Code session in the desktop app
+        2. ...
+  - type: input
+    id: claude
+    attributes:
+      label: Claude Code version
+      description: Run `claude --version`.
+      placeholder: 2.1.299
+    validations:
+      required: true
+  - type: input
+    id: node
+    attributes:
+      label: Node.js version
+      description: Run `node --version`.
+      placeholder: v22.11.0
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Windows
+        - macOS
+        - Linux
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error text
+      description: Any error the pane shows, or what the dashboard server printed. Please remove anything private first.
+      render: text

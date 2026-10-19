@@ -1,0 +1,12 @@
+{
+  "name": "tokenmeter",
+  "description": "Token usage pane and dashboard for Claude Code.",
+  "owner": { "name": "Bar Madar", "url": "https://github.com/bar-madar" },
+  "plugins": [
+    {
+      "name": "tokenmeter",
+      "source": "./",
+      "description": "Live token usage inside Claude Code: this session, today, plan limits, context fill and all-time totals."
+    }
+  ]
+}
