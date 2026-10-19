@@ -1,0 +1,194 @@
+<!doctype html>
+<!--
+  Source of docs/images/social-preview.png, the repository's link preview.
+  Render at 1280×640, e.g. with Edge or Chrome:
+    msedge --headless=new --hide-scrollbars --force-device-scale-factor=1 \
+      --window-size=1280,640 --screenshot=social-preview.png docs/social-preview.html
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tokenmeter social preview</title>
+<style>
+  :root {
+    --bg: #121212;
+    --ink: #f2f2f2;
+    --muted: #9a9a9a;
+    --orange: #e8650a;
+    --border: #2e2e2e;
+    --mono: "Cascadia Mono", "Cascadia Code", Consolas, "SF Mono", Menlo, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1280px; height: 640px; overflow: hidden; }
+  body {
+    position: relative;
+    background:
+      radial-gradient(900px 520px at 8% 0%, rgba(232, 101, 10, 0.16), transparent 60%),
+      radial-gradient(700px 500px at 100% 100%, rgba(232, 101, 10, 0.08), transparent 60%),
+      var(--bg);
+    color: var(--ink);
+    font-family: var(--mono);
+  }
+  /* faint dot grid */
+  body::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  .copy {
+    position: absolute;
+    left: 72px;
+    top: 64px;
+    width: 560px;
+  }
+  .eyebrow {
+    font-size: 15px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .eyebrow b { color: var(--orange); font-weight: 400; }
+  .wordmark {
+    margin-top: 18px;
+    font-size: 78px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1;
+  }
+  .wordmark span { color: var(--orange); }
+  .tagline {
+    margin-top: 26px;
+    font-size: 31px;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+  .sub {
+    margin-top: 16px;
+    font-size: 19px;
+    line-height: 1.5;
+    color: #c4c4c4;
+  }
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 28px;
+  }
+  .pill {
+    padding: 7px 14px;
+    border: 1px solid #3a3a3a;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.03);
+    font-size: 15px;
+    color: #d8d8d8;
+  }
+  .pill i {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    background: var(--orange);
+    margin-right: 8px;
+    vertical-align: 1px;
+  }
+
+  .footer {
+    position: absolute;
+    left: 72px;
+    bottom: 52px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 18px;
+    color: var(--muted);
+  }
+  .footer svg { display: block; }
+  .footer b { color: var(--ink); font-weight: 400; }
+
+  /* the dashboard, tilted, bleeding off the right edge */
+  .shot {
+    position: absolute;
+    left: 690px;
+    top: 70px;
+    width: 820px;
+    border: 1px solid #3a3a3a;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #101010;
+    box-shadow:
+      0 40px 80px rgba(0, 0, 0, 0.6),
+      0 0 0 1px rgba(232, 101, 10, 0.08),
+      0 0 120px rgba(232, 101, 10, 0.12);
+    transform: perspective(1800px) rotateY(-14deg) rotateX(5deg) rotateZ(-1deg);
+    transform-origin: left center;
+  }
+  .shot .chrome {
+    display: flex;
+    gap: 8px;
+    padding: 12px 14px;
+    background: #1a1a1a;
+    border-bottom: 1px solid var(--border);
+  }
+  .shot .chrome span { width: 12px; height: 12px; border-radius: 50%; background: #3a3a3a; }
+  .shot .chrome span:first-child { background: #ff5f57; }
+  .shot .chrome span:nth-child(2) { background: #febc2e; }
+  .shot .chrome span:nth-child(3) { background: #28c840; }
+  .shot img { display: block; width: 100%; }
+</style>
+</head>
+<body>
+  <div class="copy">
+    <div class="eyebrow">Claude Code plugin <b>·</b> open source</div>
+    <div class="wordmark">TOKEN<span>METER</span></div>
+    <div class="tagline">See where your Claude Code tokens go.</div>
+    <div class="sub">A live pane in every session and a local dashboard: tokens, plan limits, context fill and history.</div>
+    <div class="pills">
+      <div class="pill"><i></i>Live in-session pane</div>
+      <div class="pill"><i></i>Plan limits</div>
+      <div class="pill"><i></i>100% local</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <svg id="buddy" width="52" height="48" viewBox="0 0 13 12" shape-rendering="crispEdges" aria-hidden="true"></svg>
+    <span><b>github.com/</b>bar-madar/claude-tokenmeter</span>
+  </div>
+
+  <div class="shot">
+    <div class="chrome"><span></span><span></span><span></span></div>
+    <img src="images/dashboard.png" alt="">
+  </div>
+
+<script>
+  // The dashboard's pixel companion, drawn as SVG squares.
+  const sprite = [
+    '...#....#...',
+    '....#..#....',
+    '...hhhhhh...',
+    '..########..',
+    '.##EE##EE##.',
+    '.##EE##EE##.',
+    '############',
+    '#.########.#',
+    '#.########.#',
+    '...##..##...',
+    '...##..##...',
+  ];
+  const colors = { '#': '#c8724f', h: '#e0916f', E: '#1a1a1a' };
+  const svg = document.getElementById('buddy');
+  sprite.forEach((row, y) => [...row].forEach((ch, x) => {
+    if (!colors[ch]) return;
+    const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    r.setAttribute('x', x + 0.5);
+    r.setAttribute('y', y + 0.5);
+    r.setAttribute('width', 1);
+    r.setAttribute('height', 1);
+    r.setAttribute('fill', colors[ch]);
+    svg.appendChild(r);
+  }));
+</script>
+</body>
+</html>
