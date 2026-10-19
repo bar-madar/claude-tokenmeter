@@ -56,7 +56,7 @@ for (const surface of ['terminal', 'desktop'] as const) {
     const urls: string[] = []
     const writes: { path: string; text: string }[] = []
     mock.clock(on, { now: NOW })
-    mock.env(on, { USERPROFILE: 'C:/Users/me' })
+    mock.env(on, { HOME: '/home/me' })
     on('session.id', () => ({ value: 's1' }))
     on('session.model', () => ({ value: 'claude-opus-5-5' }))
     on('session.usage', () => ({ value: usage }))
@@ -83,7 +83,8 @@ for (const surface of ['terminal', 'desktop'] as const) {
     expect(await ui.find({ key: 'open' })).toBeDefined()
 
     expect(writes).toHaveLength(1)
-    expect(writes[0]?.path.split('\\').join('/')).toBe('C:/Users/me/.claude/tokenmeter-live.json')
+    // The engine resolves the path for the OS (a drive letter on Windows), so compare its end.
+    expect(writes[0]?.path.split('\\').join('/').endsWith('/home/me/.claude/tokenmeter-live.json')).toBe(true)
     expect(JSON.parse(writes[0]?.text ?? '{}').rateLimits[0].percentUsed).toBe(23.5)
   })
 }
