@@ -27,6 +27,7 @@
 - Your 5-hour and weekly plan limits, with when each resets
 - Today, the last 7 days, a 30-day projection and all-time totals
 - Refreshes after every reply and every minute; `/tokens` reopens it
+- The latest [TokenDiet](#works-with-tokendiet) audit of the project, and a tip when a session gets heavy
 
 **Web dashboard**, on `localhost`:
 
@@ -35,6 +36,7 @@
 - 90-day activity heatmap and peak hours
 - Breakdowns by project (with 14-day sparklines), session, model and tool
 - Plan limits and context fill, handed over from the pane
+- Instruction weight per project: what your CLAUDE.md and rules files add to every request, from TokenDiet audits
 - Auto-refresh every minute, and an idle pixel companion (click it)
 
 **Under the hood**
@@ -49,6 +51,17 @@
 <br>
 <img src="docs/images/dashboard-full.png" alt="The full dashboard: summary, daily chart, heatmap, peak hours, projects, sessions, models and tools">
 </details>
+
+## Works with TokenDiet
+
+Tokenmeter shows where your tokens go. [TokenDiet](https://bar-madar.github.io/tokendiet/), its paid companion skill, cuts what your instructions add to every request: it measures the CLAUDE.md, AGENTS.md and rules files of Claude Code, Codex, Cursor, Copilot, Gemini CLI, Windsurf and Cline, and trims them without losing anything.
+
+The two work together:
+
+- **TokenDiet → Tokenmeter.** Each TokenDiet audit leaves a short summary (numbers and finding titles, no file contents) in `~/.claude/tokendiet/audits.json`. The dashboard shows it per project, and the pane shows it for the session's project.
+- **Tokenmeter → TokenDiet.** When a session's context passes half the window, or its prompt cache keeps missing, the pane suggests a diet.
+
+Tokenmeter stays free and works fully without TokenDiet.
 
 ## Install the pane
 
@@ -123,6 +136,8 @@ flowchart LR
   scanner -. "dashboard not running" .-> pane
   pane -- "plan limits and context fill" --> live[("tokenmeter-live.json")]
   live --> server
+  diet["TokenDiet audits"] --> audits[("tokendiet/audits.json")]
+  audits --> scanner
 ```
 
 The logs hold each response's token usage but not your plan limits, so the pane also reads those from Claude Code and leaves the latest reading in `~/.claude/tokenmeter-live.json` for the dashboard.
@@ -154,7 +169,7 @@ Claude Code writes a response to its log once per content block (thinking, text,
 
 ## Privacy
 
-Everything stays on your computer. Tokenmeter reads your local Claude Code logs, listens on `127.0.0.1` only, and sends nothing anywhere: no analytics, no telemetry, no update checks. The only file it writes is `tokenmeter-live.json` in your Claude config folder.
+Everything stays on your computer. Tokenmeter reads your local Claude Code logs (and TokenDiet's audit summaries, if you use it), listens on `127.0.0.1` only, and sends nothing anywhere: no analytics, no telemetry, no update checks. The only file it writes is `tokenmeter-live.json` in your Claude config folder.
 
 ## Limitations
 
@@ -208,6 +223,12 @@ claude --plugin-dir .    # run Claude Code with the pane from this folder
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for more.
+
+## More
+
+- Website: <https://bar-madar.github.io/>
+- [TokenDiet](https://bar-madar.github.io/tokendiet/): cut what your instructions add to every request
+- Questions: [open an issue](https://github.com/bar-madar/claude-tokenmeter/issues); I reply within 2 business days
 
 ## Acknowledgements
 

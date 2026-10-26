@@ -1,6 +1,6 @@
 {
   "name": "claude-tokenmeter",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Token usage pane and local dashboard for Claude Code, read from your own session logs.",
   "keywords": ["claude-code", "claude", "tokens", "usage", "dashboard", "plugin"],

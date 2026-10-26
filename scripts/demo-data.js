@@ -153,6 +153,31 @@ function writeDemoData(configDir, { now = Date.now(), seed = 7, days = 75 } = {}
     ],
   }));
 
+  // What the TokenDiet skill leaves behind after auditing two of the projects.
+  const audit = (dir, daysAgo, agents, top) => ({
+    project: `/Users/dev/code/${dir}`,
+    at: new Date(now - daysAgo * DAY).toISOString(),
+    agents,
+    findings: top.length,
+    top: top.slice(0, 3),
+  });
+  const audits = [
+    audit('acme-web', 2, [
+      { name: 'Claude Code', perRequest: 2865, saves: 2456 },
+      { name: 'Cursor', perRequest: 631, saves: 398 },
+    ], [
+      { title: '"Release process" in CLAUDE.md (lines 20-39) loads on every request', saves: 1142 },
+      { title: '32-line code sample in CLAUDE.md (lines 55-86)', saves: 799 },
+      { title: '"Changelog" in CLAUDE.md (lines 40-52) loads on every request', saves: 417 },
+    ]),
+    audit('payments-api', 5, [{ name: 'Claude Code', perRequest: 1240, saves: 0 }], []),
+  ];
+  fs.mkdirSync(path.join(configDir, 'tokendiet'), { recursive: true });
+  fs.writeFileSync(path.join(configDir, 'tokendiet', 'audits.json'), JSON.stringify({
+    version: 1,
+    audits: Object.fromEntries(audits.map(a => [a.project.toLowerCase(), a])),
+  }));
+
   return { configDir, sessions: sessionNo };
 }
 

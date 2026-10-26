@@ -288,6 +288,7 @@
       el('text', { x: 0, y: top + (1 + i * 2) * (cell + gap) + cell - 2 }, axis).textContent = n;
     });
     let lastMonth = -1;
+    let lastLabelX = -Infinity;
     days.forEach((day, i) => {
       const k = i + firstDow;
       const col = Math.floor(k / 7);
@@ -296,8 +297,12 @@
       const yy = top + dow * (cell + gap);
       const dt = new Date(day.date + 'T00:00:00');
       if (dow === 0 || i === 0) {
-        if (dt.getMonth() !== lastMonth && (dt.getDate() <= 7 || i === 0)) {
+        // Label a month where it starts; skip the first column's month when
+        // it ends within a week or two, so labels never collide.
+        const starts = dt.getDate() <= 7 || (i === 0 && dt.getDate() <= 17);
+        if (dt.getMonth() !== lastMonth && starts && x - lastLabelX >= 30) {
           lastMonth = dt.getMonth();
+          lastLabelX = x;
           el('text', { x, y: 10 }, axis).textContent = dt.toLocaleDateString(undefined, { month: 'short' });
         }
       }
@@ -364,13 +369,50 @@
     return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="var(--orange)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${last[0]}" cy="${last[1]}" r="2.5" fill="var(--orange)"/></svg>`;
   }
 
+  // Claude Code's numbers from a TokenDiet audit, or the heaviest agent's.
+  function dietAgent(a) {
+    return a.agents.find(x => x.name === 'Claude Code') || a.agents.slice().sort((x, y) => y.perRequest - x.perRequest)[0];
+  }
+
+  function perRequestCell(p) {
+    const a = p.diet && dietAgent(p.diet);
+    if (!a) return '<span class="muted" title="No TokenDiet audit yet">–</span>';
+    const save = a.saves ? ` <span class="green">-${Math.round((a.saves / Math.max(1, a.perRequest)) * 100)}%</span>` : '';
+    return `<span title="${esc(a.name)}: ~${fmtFull(a.perRequest)} tokens of instructions per request, ~${fmtFull(a.saves)} can go">~${fmt(a.perRequest)}${save}</span>`;
+  }
+
   function renderProjects(d) {
     $('projects').innerHTML = table(
-      ['Project', 'Sessions', 'All tokens', 'In/out', 'Cache hit', 'Last active', '14 days'],
+      ['Project', 'Sessions', 'All tokens', 'In/out', 'Cache hit', 'Per request', 'Last active', '14 days'],
       d.projects.map(p => [
-        `<span title="${esc(p.path)}">${esc(p.name)}</span>`, p.sessions, fmt(p.all), fmt(p.io), pct(p.cacheHitRate, 0), esc(ago(p.lastTs)), sparkline(p.spark),
+        `<span title="${esc(p.path)}">${esc(p.name)}</span>`, p.sessions, fmt(p.all), fmt(p.io), pct(p.cacheHitRate, 0), perRequestCell(p), esc(ago(p.lastTs)), sparkline(p.spark),
       ]),
-      [false, true, true, true, true, true, false]);
+      [false, true, true, true, true, true, true, false]);
+  }
+
+  function renderDiet(d) {
+    const audits = (d.diet || []).slice(0, 6);
+    if (!audits.length) {
+      $('diet').innerHTML = `
+        <div class="card diet-empty">
+          <div class="label">Not measured yet</div>
+          <p>Every request also carries your CLAUDE.md, AGENTS.md and rules files.
+          <b>TokenDiet</b> measures what they add per request, for every agent, and trims them without losing anything.
+          Its audits appear here.</p>
+          <a class="text-link" href="https://bar-madar.github.io/tokendiet/" target="_blank" rel="noopener">See how TokenDiet works</a>
+        </div>`;
+      return;
+    }
+    $('diet').innerHTML = audits.map(a => `
+      <div class="card diet-card">
+        <div class="label">${esc(a.name)} <span class="muted">· audited ${esc(ago(a.at))}</span></div>
+        ${a.agents.map(g => `
+          <div class="diet-row">
+            <span>${esc(g.name)}</span>
+            <span class="num">~${fmtFull(g.perRequest)}${g.saves ? ` → <b class="green">~${fmtFull(g.perRequest - g.saves)}</b>` : ''}</span>
+          </div>`).join('')}
+        ${a.top && a.top.length ? `<ul class="diet-top">${a.top.map(t => `<li>${esc(t.title)}</li>`).join('')}</ul>` : '<p class="muted">Already lean.</p>'}
+      </div>`).join('');
   }
 
   function renderSessions(d) {
@@ -412,6 +454,7 @@
     renderHeatmap(data);
     renderHours(data);
     renderProjects(data);
+    renderDiet(data);
     renderSessions(data);
     renderModels(data);
     renderTools(data);

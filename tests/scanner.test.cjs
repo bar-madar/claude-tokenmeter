@@ -130,6 +130,29 @@ test('builds the daily, hourly, project and session breakdowns', () => {
   assert.equal(r.projection30.all, Math.round(((6210 * 2) / 7) * 30));
 });
 
+test('attaches TokenDiet audits to matching projects and sessions', () => {
+  const { root, file } = tempProjects();
+  fs.writeFileSync(file, lines([response('a', USAGE, [])]));
+  const dietFile = path.join(path.dirname(root), 'tokendiet', 'audits.json');
+  fs.mkdirSync(path.dirname(dietFile), { recursive: true });
+  fs.writeFileSync(dietFile, JSON.stringify({
+    version: 1,
+    audits: {
+      '/code/app': { project: '/code/app', at: at(9), agents: [{ name: 'Cursor', perRequest: 900, saves: 100 }, { name: 'Claude Code', perRequest: 2000, saves: 1500 }], findings: 4, top: [] },
+      '/code/other': { project: '/code/other', at: at(8), agents: [{ name: 'Codex', perRequest: 300, saves: 0 }], findings: 0, top: [] },
+    },
+  }));
+  const r = createScanner(root, { dietFile }).scan({ now: NOW });
+  assert.equal(r.diet.length, 2, 'audits of projects without Claude Code logs are listed too');
+  assert.equal(r.diet[0].name, 'app');
+  assert.equal(r.projects[0].diet.findings, 4);
+  const s = summarize(r, 's1');
+  assert.deepEqual(s.diet, { at: at(9), agent: 'Claude Code', perRequest: 2000, saves: 1500, findings: 4 });
+
+  fs.writeFileSync(dietFile, '{ not json');
+  assert.deepEqual(createScanner(root, { dietFile }).scan({ now: NOW }).diet, [], 'a broken file is ignored');
+});
+
 test('summarize picks the requested session', () => {
   const { root, file } = tempProjects();
   fs.writeFileSync(file, lines([response('a', USAGE, [])]));

@@ -1,6 +1,6 @@
 {
   "name": "tokenmeter",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Live token usage inside Claude Code: this session, today, plan limits, context fill and all-time totals, read from your local logs.",
   "author": { "name": "Bar Madar", "url": "https://github.com/bar-madar" },
   "homepage": "https://github.com/bar-madar/claude-tokenmeter",

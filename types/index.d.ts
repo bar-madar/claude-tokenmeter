@@ -21,7 +21,17 @@ export type Summary = {
   avg7: { all: number; io: number }
   projection30: { all: number; io: number }
   topProjects: { name: string; all: number }[]
+  diet: DietDigest | null
   source: 'dashboard' | 'scan'
+}
+
+/** The latest TokenDiet audit of the session's project, when there is one. */
+export type DietDigest = {
+  at: string
+  agent: string
+  perRequest: number
+  saves: number
+  findings: number
 }
 
 export type RateLimit = { kind: string; percentUsed: number; resetsAt?: string }

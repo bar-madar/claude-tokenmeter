@@ -1,6 +1,6 @@
 import { describe, expect, mock, test } from 'claude-code/testing'
 
-import { fmt, meter, resetsIn, spark } from '../hooks/register'
+import { daysAgo, fmt, isHeavy, meter, resetsIn, spark } from '../hooks/register'
 import type { Summary } from '../types'
 
 const NOW = Date.parse('2026-10-19T11:00:00.000Z')
@@ -19,6 +19,7 @@ const sample: Omit<Summary, 'source'> = {
   avg7: { all: 12_600_000, io: 90_000 },
   projection30: { all: 378_000_000, io: 2_700_000 },
   topProjects: [{ name: 'acme-web', all: 93_540_000 }],
+  diet: null,
 }
 
 const usage = {
@@ -48,6 +49,52 @@ describe('formatting', () => {
     expect(resetsIn('2026-10-23T17:00:00.000Z', NOW)).toBe('resets in 4d 6h')
     expect(resetsIn('2026-10-19T10:00:00.000Z', NOW)).toBe('resets now')
     expect(resetsIn(undefined, NOW)).toBe('')
+  })
+
+  test('daysAgo and isHeavy', async () => {
+    expect(daysAgo('2026-10-19T08:00:00.000Z', NOW)).toBe('today')
+    expect(daysAgo('2026-10-18T08:00:00.000Z', NOW)).toBe('yesterday')
+    expect(daysAgo('2026-10-14T08:00:00.000Z', NOW)).toBe('5 days ago')
+    expect(isHeavy(50, null)).toBe(true)
+    expect(isHeavy(20, { calls: 12, cacheHitRate: 0.7 })).toBe(true)
+    expect(isHeavy(20, { calls: 5, cacheHitRate: 0.5 })).toBe(false)
+    expect(isHeavy(20, { calls: 30, cacheHitRate: 0.96 })).toBe(false)
+  })
+})
+
+// Mocks for one refresh: the dashboard answers `summary`, the session reports `context`.
+function mockRefresh(on: Parameters<Parameters<typeof test>[1]>[1], summary: object, percent: number) {
+  mock.clock(on, { now: NOW })
+  mock.env(on, {})
+  on('session.id', () => ({ value: 's1' }))
+  on('session.model', () => ({ value: 'claude-opus-5-5' }))
+  on('session.usage', () => ({ value: { ...usage, context: { tokens: percent * 2000, window: 200_000, percent } } }))
+  on('http.fetch', () => ({ value: { status: 200, ok: true, headers: {}, text: JSON.stringify(summary) } }))
+}
+
+describe('TokenDiet', () => {
+  test('shows the latest audit of this project', async ($, on) => {
+    mockRefresh(on, { ...sample, diet: { at: '2026-10-17T09:00:00.000Z', agent: 'Claude Code', perRequest: 2865, saves: 2456, findings: 8 } }, 30)
+    const ui = await $.ui.mount({ plugin: 'tokenmeter', surface: 'desktop', component: 'Pane', requestId: 'tokens', props: paneProps })
+    await ui.press({ key: 'refresh' })
+    expect(await ui.find({ text: 'INSTRUCTIONS · TOKENDIET' })).toBeDefined()
+    expect(await ui.find({ text: '~2.9K/request' })).toBeDefined()
+    expect(await ui.find({ text: '~2.5K (-86%)' })).toBeDefined()
+    expect(await ui.find({ text: /Audited 2 days ago/ })).toBeDefined()
+  })
+
+  test('suggests TokenDiet only when the session is heavy', async ($, on) => {
+    mockRefresh(on, sample, 62)
+    const ui = await $.ui.mount({ plugin: 'tokenmeter', surface: 'terminal', component: 'Pane', requestId: 'tokens', props: paneProps })
+    await ui.press({ key: 'refresh' })
+    expect(await ui.find({ text: /bar-madar\.github\.io\/tokendiet/ })).toBeDefined()
+  })
+
+  test('stays quiet in a light session without an audit', async ($, on) => {
+    mockRefresh(on, sample, 20)
+    const ui = await $.ui.mount({ plugin: 'tokenmeter', surface: 'terminal', component: 'Pane', requestId: 'tokens', props: paneProps })
+    await ui.press({ key: 'refresh' })
+    expect(await ui.find({ text: /TokenDiet/i })).toBeUndefined()
   })
 })
 

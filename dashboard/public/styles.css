@@ -184,6 +184,20 @@ td.wrap { white-space: normal; min-width: 180px; }
 
 .error { margin: 10px 0; padding: 10px 14px; border: 1px solid #7a2a2a; background: #2a1515; border-radius: 6px; color: #ffb4b4; }
 .footnote { font-size: 11.5px; margin-top: 28px; }
+.footnote + .footnote { margin-top: 6px; }
+.footnote a, .text-link { color: var(--orange); }
+.footnote a:hover, .text-link:hover { text-decoration: none; }
+
+/* ---------- TokenDiet ---------- */
+.green { color: var(--green); }
+.diet-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+.diet-card .label { color: var(--ink-2); }
+.diet-row { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; color: var(--ink-2); }
+.diet-row .num { font-variant-numeric: tabular-nums; color: var(--ink); }
+.diet-top { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size: 12px; }
+.diet-top li + li { margin-top: 3px; }
+.diet-empty { border-left: 3px solid var(--green); }
+.diet-empty p { margin: 6px 0 10px; color: var(--ink-2); max-width: 720px; }
 
 @media (max-width: 520px) {
   .big { font-size: 22px; }

@@ -379,11 +379,29 @@ function aggregate(msgs, sessions, now) {
   };
 }
 
+const DIET_FILE = path.join(CONFIG_DIR, 'tokendiet', 'audits.json');
+const pathKey = p => (p || '').replace(/\\/g, '/').toLowerCase();
+
+// Audit summaries the TokenDiet skill leaves behind: how many tokens of
+// instructions each agent loads per request, and how much can go.
+function readDiet(file = DIET_FILE) {
+  try {
+    const store = JSON.parse(fs.readFileSync(file, 'utf8'));
+    if (store.version !== 1 || !store.audits) return [];
+    return Object.values(store.audits)
+      .filter(a => a && a.project && Array.isArray(a.agents))
+      .map(a => ({ ...a, name: projectName(a.project) }))
+      .sort((a, b) => String(b.at).localeCompare(String(a.at)));
+  } catch {
+    return [];
+  }
+}
+
 /**
  * A scanner over one projects folder. It remembers how far it has read each
  * file, so calling scan() again only parses what was appended since.
  */
-function createScanner(root = PROJECTS_DIR) {
+function createScanner(root = PROJECTS_DIR, { dietFile = DIET_FILE } = {}) {
   const cache = new Map();
 
   function scan({ now = Date.now() } = {}) {
@@ -399,7 +417,12 @@ function createScanner(root = PROJECTS_DIR) {
       for (const [k, e] of st.msgs) msgs.set(k, e);
       for (const s of st.sessions.values()) mergeSessions(sessions, s);
     }
-    return { root, files: files.length, ...aggregate(msgs, sessions, now) };
+    const result = aggregate(msgs, sessions, now);
+    const diet = readDiet(dietFile);
+    const byPath = new Map(diet.map(a => [pathKey(a.project), a]));
+    for (const p of result.projects) p.diet = byPath.get(pathKey(p.path)) || null;
+    for (const s of result.sessions) s.diet = byPath.get(pathKey(s.path)) || null;
+    return { root, files: files.length, ...result, diet };
   }
 
   return { root, scan };
@@ -422,7 +445,15 @@ function summarize(r, sessionId) {
     avg7: r.avg7,
     projection30: r.projection30,
     topProjects: r.projects.slice(0, 3).map(p => ({ name: p.name, all: p.all })),
+    diet: s && s.diet ? dietDigest(s.diet) : null,
   };
+}
+
+// What the pane shows from a TokenDiet audit: Claude Code's numbers when
+// present, otherwise the heaviest agent's.
+function dietDigest(a) {
+  const agent = a.agents.find(x => x.name === 'Claude Code') || [...a.agents].sort((x, y) => y.perRequest - x.perRequest)[0];
+  return agent ? { at: a.at, agent: agent.name, perRequest: agent.perRequest, saves: agent.saves, findings: a.findings } : null;
 }
 
 const defaultScanner = createScanner();
@@ -430,7 +461,9 @@ const defaultScanner = createScanner();
 module.exports = {
   CONFIG_DIR,
   PROJECTS_DIR,
+  DIET_FILE,
   createScanner,
+  readDiet,
   scan: options => defaultScanner.scan(options),
   summarize,
   lastDays,

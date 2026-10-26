@@ -44,6 +44,21 @@ export function resetsIn(iso: string | undefined, now: number): string {
 
 const LIMIT_NAMES: Record<string, string> = { five_hour: '5-hour', seven_day: 'Weekly', spend_limit: 'Spend' }
 
+const DIET_URL = 'bar-madar.github.io/tokendiet'
+
+export function daysAgo(iso: string, now: number): string {
+  const days = Math.floor((now - Date.parse(iso)) / 86_400_000)
+  if (!(days >= 1)) return 'today'
+  return days === 1 ? 'yesterday' : `${days} days ago`
+}
+
+// A session worth slimming down: the context is half full, or the prompt
+// cache keeps missing.
+export function isHeavy(contextPercent: number, session: { calls: number; cacheHitRate: number } | null | undefined): boolean {
+  if (contextPercent >= 50) return true
+  return !!session && session.calls >= 10 && session.cacheHitRate < 0.8
+}
+
 // ---------- data ----------
 
 let isRefreshing = false
@@ -213,6 +228,25 @@ export const register: Register = on => {
             )}
             {l.rateLimits.length === 0 ? <Text dimColor>No plan-limit reading yet.</Text> : null}
           </Box>
+        ) : null}
+
+        {s?.diet ? (
+          <Box flexDirection="column">
+            {heading('INSTRUCTIONS · TOKENDIET')}
+            {line(`${s.diet.agent} loads`, `~${fmt(s.diet.perRequest)}/request`)}
+            {s.diet.saves > 0
+              ? line('Can go, losslessly', `~${fmt(s.diet.saves)} (-${Math.round((s.diet.saves / Math.max(1, s.diet.perRequest)) * 100)}%)`)
+              : null}
+            <Text dimColor>
+              {s.diet.saves > 0
+                ? `Audited ${daysAgo(s.diet.at, now)}. Ask your agent to "put this project on a token diet".`
+                : `Audited ${daysAgo(s.diet.at, now)}. Already lean.`}
+            </Text>
+          </Box>
+        ) : isHeavy(ctxPercent, cur) ? (
+          <Text key="diet-tip" dimColor>
+            {`Context is getting heavy. TokenDiet measures what your instructions add to every request and trims it without losing anything: ${DIET_URL}`}
+          </Text>
         ) : null}
 
         {s ? (
