@@ -166,10 +166,11 @@
       const p = c.percent ?? (c.tokens ? Math.round((c.tokens / c.window) * 100) : 0);
       cards.push(`
       <div class="card">
-        <div class="label">Context window <span class="muted">(${esc(live.title || 'session')})</span></div>
+        <div class="label">Context window</div>
         <div class="big">${p}%<span class="muted" style="font-size:12px;font-weight:400"> full</span></div>
         <div class="meter"><div style="width:${Math.min(100, p)}%"></div></div>
         <div class="sub">${fmt(c.tokens || 0)} of ${fmt(c.window)} tokens · ${esc(shortModel(live.model))}</div>
+        ${live.title ? `<div class="sub" title="${esc(live.title)}">${esc(live.title)}</div>` : ''}
       </div>`);
     }
     if (!cards.length) cards.push('<div class="card live-empty">No plan-limit reading yet. It appears after the next reply in a Code session.</div>');

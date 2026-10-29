@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.2.1] - 2026-10-29
+
+### Fixed
+
+- Dashboard: the usage summary lays out in two even rows of five, and the
+  context window card shows the session title on its own line instead of in
+  a long all-caps label.
+- Refreshed screenshots.
+
 ## [0.2.0] - 2026-10-26
 
 ### Added
@@ -38,5 +47,6 @@ First public release.
 - Demo mode (`npm run demo`) with generated data.
 - Support for `CLAUDE_CONFIG_DIR` and a configurable port (`TOKENMETER_PORT`).
 
+[0.2.1]: https://github.com/bar-madar/claude-tokenmeter/releases/tag/v0.2.1
 [0.2.0]: https://github.com/bar-madar/claude-tokenmeter/releases/tag/v0.2.0
 [0.1.0]: https://github.com/bar-madar/claude-tokenmeter/releases/tag/v0.1.0

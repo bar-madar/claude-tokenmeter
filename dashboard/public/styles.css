@@ -113,7 +113,8 @@ h1 { font-size: 22px; margin: 0; }
 .last-session .meta { color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 4px 14px; }
 
 .hero-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-top: 12px; }
-.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+.stat-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 900px) { .stat-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); } }
 .stat-grid .card { padding: 12px 14px; }
 .stat-grid .val { font-size: 21px; font-weight: 700; }
 .stat-grid .swatch { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; vertical-align: 1px; }
